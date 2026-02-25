@@ -31,12 +31,22 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      connectSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      connectSrc: [
+        "'self'",
+        "wss://relay.walletconnect.com",
+        "wss://relay.walletconnect.org",
+        "https://relay.walletconnect.com",
+        "https://*.walletconnect.com",
+        "https://*.walletconnect.org",
+        "https://esm.sh",
+        "https://cdn.esm.sh"
+      ],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://esm.sh", "https://cdn.esm.sh"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
+      imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://*.walletconnect.com"],
+      frameSrc: ["https://verify.walletconnect.com", "https://verify.walletconnect.org"],
     }
   }
 }));
@@ -185,7 +195,7 @@ app.get('/api', (req, res) => {
       'POST /api/register': {
         description: 'Register a new .xrs name',
         body: '{ name, address, signature?, metadata? }',
-        signature_format: 'sign("xrs-names:register:<name>:<address>") — optional, base58-encoded Ed25519',
+        signature_format: 'sign("xrs-names:register:<name>:<address>") — optional, base58-encoded Ed25519. Verified when provided.',
         response: '{ success, name, address, registered }'
       },
       'PUT /api/update/:name': {
@@ -216,7 +226,7 @@ app.get('/api', (req, res) => {
     },
     signing: {
       algorithm: 'Ed25519 detached signature (base58-encoded)',
-      register: 'sign("xrs-names:register:<name>:<address>") — optional for web UI, recommended for wallets',
+      register: 'sign("xrs-names:register:<name>:<address>") — optional, verified when provided',
       update: 'sign("xrs-names:update:<name>:<new_address>") — required, must be signed by current owner',
       notes: 'Addresses are base58-encoded Ed25519 public keys (32 bytes). Signatures are base58-encoded Ed25519 detached signatures (64 bytes).'
     },
@@ -343,10 +353,11 @@ app.post('/api/register', registrationLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Invalid address format' });
   }
 
-  // Verify signature if provided (optional for backward compat with web UI)
+  // Signature is optional (web UI uses WalletConnect pairing instead)
+  // but when provided, it must be valid
   if (signature) {
-    const message = `xrs-names:register:${cleanName}:${address}`;
-    if (!verifySignature(message, signature, address)) {
+    const signMessage = `xrs-names:register:${cleanName}:${address}`;
+    if (!verifySignature(signMessage, signature, address)) {
       return res.status(401).json({ error: 'Invalid signature' });
     }
   }
