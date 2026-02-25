@@ -388,6 +388,40 @@ app.get('/api/recent', async (req, res) => {
   }
 });
 
+// Directory - list all registered names with pagination
+app.get('/api/directory', async (req, res) => {
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit) || 50, 1), 100);
+  const offset = (page - 1) * limit;
+
+  try {
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM names');
+    const total = parseInt(countResult.rows[0].total);
+
+    const result = await pool.query(
+      `SELECT name, address, registered_at
+       FROM names
+       ORDER BY name ASC
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    res.json({
+      entries: result.rows.map(r => ({
+        name: `${r.name}.xrs`,
+        address: r.address,
+        registered: new Date(parseInt(r.registered_at)).toISOString()
+      })),
+      total,
+      page,
+      pages: Math.ceil(total / limit)
+    });
+  } catch (err) {
+    console.error('DB error on directory:', err.message);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 // Stats
 app.get('/api/stats', async (req, res) => {
   try {

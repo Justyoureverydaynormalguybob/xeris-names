@@ -511,6 +511,7 @@
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('register')">Register</button>
                 <button class="tab" onclick="switchTab('lookup')">Lookup</button>
+                <button class="tab" onclick="switchTab('directory')">Directory</button>
                 <button class="tab" onclick="switchTab('recent')">Recent</button>
             </div>
 
@@ -563,6 +564,23 @@
                 <button class="btn" onclick="lookupName()">Lookup</button>
 
                 <div id="lookupStatus"></div>
+            </div>
+
+            <!-- Directory Tab -->
+            <div class="tab-content" id="directory-tab">
+                <div class="input-group">
+                    <label for="directorySearch">Filter by Name</label>
+                    <input
+                        type="text"
+                        id="directorySearch"
+                        placeholder="Search names..."
+                        oninput="filterDirectory()"
+                    >
+                </div>
+                <div class="recent-names" id="directoryList" style="max-height: 450px;">
+                    <p style="text-align: center; color: var(--text-body); padding: 40px;">Loading directory...</p>
+                </div>
+                <div id="directoryPagination" style="display: flex; justify-content: center; gap: 12px; margin-top: 16px;"></div>
             </div>
 
             <!-- Recent Tab -->
@@ -621,6 +639,9 @@
 
             if (tab === 'recent') {
                 loadRecentNames();
+            }
+            if (tab === 'directory') {
+                loadDirectory(1);
             }
         }
 
@@ -777,6 +798,74 @@
         // Helper to show status messages
         function showStatus(element, message, type) {
             element.innerHTML = `<div class="status ${escapeHtml(type)}">${escapeHtml(message)}</div>`;
+        }
+
+        // Directory - all registered names
+        let directoryCache = [];
+        let directoryPage = 1;
+
+        async function loadDirectory(page) {
+            const container = document.getElementById('directoryList');
+            const pagination = document.getElementById('directoryPagination');
+            directoryPage = page;
+
+            try {
+                const res = await fetch(`${API_URL}/directory?page=${page}&limit=50`);
+                const data = await res.json();
+                directoryCache = data.entries;
+
+                renderDirectory(directoryCache);
+
+                if (data.pages > 1) {
+                    let paginationHtml = '';
+                    if (page > 1) {
+                        paginationHtml += `<button class="btn btn-secondary" style="width: auto; padding: 10px 20px; margin: 0;" onclick="loadDirectory(${page - 1})">Prev</button>`;
+                    }
+                    paginationHtml += `<span style="display: flex; align-items: center; color: var(--text-body); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85em;">${page} / ${data.pages} (${data.total} names)</span>`;
+                    if (page < data.pages) {
+                        paginationHtml += `<button class="btn btn-secondary" style="width: auto; padding: 10px 20px; margin: 0;" onclick="loadDirectory(${page + 1})">Next</button>`;
+                    }
+                    pagination.innerHTML = paginationHtml;
+                } else {
+                    pagination.innerHTML = data.total > 0 ? `<span style="color: var(--text-dim); font-size: 0.85em;">${data.total} name${data.total !== 1 ? 's' : ''} registered</span>` : '';
+                }
+            } catch (err) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 40px;">Error loading directory</p>';
+                pagination.innerHTML = '';
+            }
+        }
+
+        function renderDirectory(entries) {
+            const container = document.getElementById('directoryList');
+
+            if (entries.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 40px; font-family: Inter, sans-serif;">No names found.</p>';
+                return;
+            }
+
+            container.innerHTML = entries.map(item => `
+                <div class="name-item">
+                    <div>
+                        <div class="name-text">${escapeHtml(item.name)}</div>
+                        <div class="address-text">${escapeHtml(item.address)}</div>
+                    </div>
+                    <div style="font-size: 0.8em; color: var(--text-dim); font-family: 'Plus Jakarta Sans', sans-serif;">
+                        ${escapeHtml(new Date(item.registered).toLocaleDateString())}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterDirectory() {
+            const query = document.getElementById('directorySearch').value.trim().toLowerCase();
+            if (!query) {
+                renderDirectory(directoryCache);
+                return;
+            }
+            const filtered = directoryCache.filter(item =>
+                item.name.toLowerCase().includes(query) || item.address.toLowerCase().includes(query)
+            );
+            renderDirectory(filtered);
         }
 
         // Load stats on page load
