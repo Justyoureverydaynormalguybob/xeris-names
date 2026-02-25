@@ -19,6 +19,13 @@ if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL environment variable is not set');
   process.exit(1);
 }
+// Debug: log URL format (redact password)
+try {
+  const dbUrl = new URL(process.env.DATABASE_URL);
+  console.log(`DATABASE_URL format: ${dbUrl.protocol}//${dbUrl.username}:***@${dbUrl.hostname}:${dbUrl.port}${dbUrl.pathname}`);
+} catch (e) {
+  console.error('DATABASE_URL is not a valid URL. First 20 chars:', process.env.DATABASE_URL.substring(0, 20));
+}
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
