@@ -351,6 +351,32 @@
             margin-top: 4px;
         }
 
+        .copy-btn {
+            background: rgba(143, 163, 255, 0.15);
+            border: 1px solid rgba(143, 163, 255, 0.25);
+            border-radius: 2px;
+            color: var(--brand-vibrant);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.75em;
+            font-weight: 600;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            letter-spacing: 0.05em;
+        }
+
+        .copy-btn:hover {
+            background: rgba(143, 163, 255, 0.3);
+            border-color: var(--brand-vibrant);
+        }
+
+        .copy-btn.copied {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.4);
+            color: #4ade80;
+        }
+
         .features {
             display: grid;
             gap: 20px;
@@ -743,12 +769,14 @@
                         const namesList = data.names.map(n => escapeHtml(n.name)).join(', ') || 'None';
                         statusDiv.innerHTML = `<div class="status info">
                             <strong>Address:</strong> ${escapeHtml(data.address)}<br>
-                            <strong>Names:</strong> ${namesList}
+                            <strong>Names:</strong> ${namesList}<br>
+                            <button class="copy-btn" style="margin-top: 8px;" onclick="copyAddress('${escapeHtml(data.address)}', this)">COPY ADDRESS</button>
                         </div>`;
                     } else {
                         statusDiv.innerHTML = `<div class="status info">
                             <strong>Name:</strong> ${escapeHtml(data.name)}<br>
-                            <strong>Address:</strong> ${escapeHtml(data.address)}
+                            <strong>Address:</strong> ${escapeHtml(data.address)}<br>
+                            <button class="copy-btn" style="margin-top: 8px;" onclick="copyAddress('${escapeHtml(data.address)}', this)">COPY ADDRESS</button>
                         </div>`;
                     }
                 } else {
@@ -774,18 +802,49 @@
 
                 container.innerHTML = data.recent.map(item => `
                     <div class="name-item">
-                        <div>
+                        <div style="min-width: 0; flex: 1;">
                             <div class="name-text">${escapeHtml(item.name)}</div>
-                            <div class="address-text">${escapeHtml(item.address.substring(0, 16))}...</div>
+                            <div class="address-text" style="word-break: break-all;">${escapeHtml(item.address)}</div>
                         </div>
-                        <div style="font-size: 0.8em; color: var(--text-dim); font-family: 'Plus Jakarta Sans', sans-serif;">
-                            ${escapeHtml(new Date(item.registered).toLocaleDateString())}
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; margin-left: 12px;">
+                            <button class="copy-btn" onclick="copyAddress('${escapeHtml(item.address)}', this)">COPY</button>
+                            <span style="font-size: 0.75em; color: var(--text-dim); font-family: 'Plus Jakarta Sans', sans-serif;">
+                                ${escapeHtml(new Date(item.registered).toLocaleDateString())}
+                            </span>
                         </div>
                     </div>
                 `).join('');
             } catch (err) {
                 container.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 40px;">Error loading names</p>';
             }
+        }
+
+        // Copy address to clipboard
+        function copyAddress(address, btn) {
+            navigator.clipboard.writeText(address).then(() => {
+                btn.textContent = 'COPIED';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'COPY';
+                    btn.classList.remove('copied');
+                }, 1500);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = address;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                btn.textContent = 'COPIED';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'COPY';
+                    btn.classList.remove('copied');
+                }, 1500);
+            });
         }
 
         // HTML escape helper to prevent XSS
@@ -845,12 +904,15 @@
 
             container.innerHTML = entries.map(item => `
                 <div class="name-item">
-                    <div>
+                    <div style="min-width: 0; flex: 1;">
                         <div class="name-text">${escapeHtml(item.name)}</div>
-                        <div class="address-text">${escapeHtml(item.address)}</div>
+                        <div class="address-text" style="word-break: break-all;">${escapeHtml(item.address)}</div>
                     </div>
-                    <div style="font-size: 0.8em; color: var(--text-dim); font-family: 'Plus Jakarta Sans', sans-serif;">
-                        ${escapeHtml(new Date(item.registered).toLocaleDateString())}
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; margin-left: 12px;">
+                        <button class="copy-btn" onclick="copyAddress('${escapeHtml(item.address)}', this)">COPY</button>
+                        <span style="font-size: 0.75em; color: var(--text-dim); font-family: 'Plus Jakarta Sans', sans-serif;">
+                            ${escapeHtml(new Date(item.registered).toLocaleDateString())}
+                        </span>
                     </div>
                 </div>
             `).join('');
