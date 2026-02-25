@@ -517,6 +517,31 @@
             color: #4ade80;
         }
 
+        .explorer-btn {
+            background: transparent;
+            border: 2px solid rgba(143, 163, 255, 0.25);
+            border-radius: 0;
+            color: var(--brand-vibrant);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .explorer-btn:hover {
+            background: rgba(143, 163, 255, 0.15);
+            border-color: var(--brand-vibrant);
+            box-shadow: 0 0 10px rgba(143, 163, 255, 0.2);
+            color: #fff;
+        }
+
         /* === FEATURES === */
         .features {
             display: grid;
@@ -1000,13 +1025,19 @@
                         statusDiv.innerHTML = `<div class="status info">
                             <strong>Address:</strong> ${escapeHtml(data.address)}<br>
                             <strong>Names:</strong> ${namesList}<br>
-                            <button class="copy-btn" style="margin-top: 8px;" onclick="copyAddress('${escapeHtml(data.address)}', this)">COPY ADDRESS</button>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <button class="copy-btn" onclick="copyAddress('${escapeHtml(data.address)}', this)">COPY ADDRESS</button>
+                                <a class="explorer-btn" href="https://explorer.xerisweb.com/account/${escapeHtml(data.address)}" target="_blank" rel="noopener">EXPLORER</a>
+                            </div>
                         </div>`;
                     } else {
                         statusDiv.innerHTML = `<div class="status info">
                             <strong>Name:</strong> ${escapeHtml(data.name)}<br>
                             <strong>Address:</strong> ${escapeHtml(data.address)}<br>
-                            <button class="copy-btn" style="margin-top: 8px;" onclick="copyAddress('${escapeHtml(data.address)}', this)">COPY ADDRESS</button>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <button class="copy-btn" onclick="copyAddress('${escapeHtml(data.address)}', this)">COPY ADDRESS</button>
+                                <a class="explorer-btn" href="https://explorer.xerisweb.com/account/${escapeHtml(data.address)}" target="_blank" rel="noopener">EXPLORER</a>
+                            </div>
                         </div>`;
                     }
                 } else {
@@ -1037,7 +1068,10 @@
                             <div class="address-text" style="word-break: break-all;">${escapeHtml(item.address)}</div>
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; margin-left: 12px;">
-                            <button class="copy-btn" onclick="copyAddress('${escapeHtml(item.address)}', this)">COPY</button>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="copy-btn" onclick="copyAddress('${escapeHtml(item.address)}', this)">COPY</button>
+                                <a class="explorer-btn" href="https://explorer.xerisweb.com/account/${escapeHtml(item.address)}" target="_blank" rel="noopener">EXPLORER</a>
+                            </div>
                             <span style="font-size: 0.75em; color: var(--text-dim); font-family: 'Space Mono', monospace;">
                                 ${escapeHtml(new Date(item.registered).toLocaleDateString())}
                             </span>
@@ -1139,7 +1173,10 @@
                         <div class="address-text" style="word-break: break-all;">${escapeHtml(item.address)}</div>
                     </div>
                     <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; margin-left: 12px;">
-                        <button class="copy-btn" onclick="copyAddress('${escapeHtml(item.address)}', this)">COPY</button>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="copy-btn" onclick="copyAddress('${escapeHtml(item.address)}', this)">COPY</button>
+                            <a class="explorer-btn" href="https://explorer.xerisweb.com/account/${escapeHtml(item.address)}" target="_blank" rel="noopener">EXPLORER</a>
+                        </div>
                         <span style="font-size: 0.75em; color: var(--text-dim); font-family: 'Space Mono', monospace;">
                             ${escapeHtml(new Date(item.registered).toLocaleDateString())}
                         </span>
