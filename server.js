@@ -96,7 +96,7 @@ async function initDatabase() {
     `);
 
     await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_address ON names(address)
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_address ON names(address)
     `);
 
     console.log('Database initialized');
@@ -371,6 +371,12 @@ app.post('/api/register', registrationLimiter, async (req, res) => {
     });
   } catch (err) {
     if (err.code === '23505') { // unique_violation
+      if (err.constraint === 'idx_address' || err.detail?.includes('address')) {
+        return res.status(409).json({
+          error: 'This address already has a registered name',
+          address: address
+        });
+      }
       return res.status(409).json({
         error: 'Name already registered',
         name: `${cleanName}.xrs`
