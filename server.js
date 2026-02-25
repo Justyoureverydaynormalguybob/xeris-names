@@ -31,22 +31,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      connectSrc: [
-        "'self'",
-        "wss://relay.walletconnect.com",
-        "wss://relay.walletconnect.org",
-        "https://relay.walletconnect.com",
-        "https://*.walletconnect.com",
-        "https://*.walletconnect.org",
-        "https://esm.sh",
-        "https://cdn.esm.sh"
-      ],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://esm.sh", "https://cdn.esm.sh"],
+      connectSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://*.walletconnect.com"],
-      frameSrc: ["https://verify.walletconnect.com", "https://verify.walletconnect.org"],
+      imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
     }
   }
 }));

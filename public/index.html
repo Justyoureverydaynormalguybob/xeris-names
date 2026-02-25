@@ -722,78 +722,6 @@
             color: var(--brand-navy);
         }
 
-        /* === WALLET CONNECTION === */
-        .wallet-area {
-            margin-top: 16px;
-            margin-bottom: 16px;
-        }
-
-        .wallet-btn {
-            background: linear-gradient(135deg, var(--brand-blue), var(--brand-deep));
-            border: 2px solid var(--brand-vibrant);
-        }
-
-        .wallet-btn:hover {
-            background: linear-gradient(135deg, var(--brand-deep), var(--brand-blue));
-            box-shadow:
-                0 0 20px rgba(143, 163, 255, 0.4),
-                0 0 40px rgba(0, 25, 165, 0.2);
-        }
-
-        .wallet-btn:disabled {
-            opacity: 0.5;
-            cursor: wait;
-        }
-
-        .wallet-connected {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            background: rgba(34, 197, 94, 0.08);
-            border: 2px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .wallet-status {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .wallet-label {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.75em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: #4ade80;
-        }
-
-        .wallet-address {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.9em;
-            color: var(--brand-light);
-        }
-
-        .wallet-disconnect {
-            background: transparent;
-            border: 2px dashed rgba(239, 68, 68, 0.4);
-            border-radius: 0;
-            color: #f87171;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.7em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            padding: 8px 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .wallet-disconnect:hover {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: #f87171;
-        }
     </style>
 </head>
 <body>
@@ -855,22 +783,17 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn" onclick="checkAvailability()">Check Availability</button>
-
-                    <div id="walletArea" style="display: none;">
-                        <div id="walletConnect" class="wallet-area">
-                            <label>Your Xeris Wallet</label>
-                            <button type="button" class="btn wallet-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
-                        </div>
-                        <div id="walletConnected" class="wallet-area wallet-connected" style="display: none;">
-                            <div class="wallet-status">
-                                <span class="wallet-label">Wallet Connected</span>
-                                <span class="wallet-address" id="walletAddress"></span>
-                            </div>
-                            <button type="button" class="wallet-disconnect" onclick="disconnectWallet()">Disconnect</button>
-                        </div>
+                    <div class="input-group">
+                        <label for="address">Your Xeris Address</label>
+                        <input
+                            type="text"
+                            id="address"
+                            placeholder="Xrs7d1e4f..."
+                            required
+                        >
                     </div>
 
+                    <button type="button" class="btn" onclick="checkAvailability()">Check Availability</button>
                     <button type="submit" class="btn" id="registerBtn" style="display: none;">Register Name</button>
 
                     <div id="registerStatus"></div>
@@ -988,133 +911,6 @@
     <script>
         const API_URL = window.location.origin + '/api';
 
-        // === WALLETCONNECT STATE ===
-        let signClient = null;
-        let wcModal = null;
-        let wcSession = null;
-        let connectedAddress = null;
-        const WC_PROJECT_ID = 'd43868eb23db2fcc678234dc12a60eea';
-
-        // Initialize WalletConnect (called on page load, runs in background)
-        async function initWalletConnect() {
-            try {
-                const [{ default: SignClient }, { WalletConnectModal }] = await Promise.all([
-                    import('https://esm.sh/@walletconnect/sign-client@2'),
-                    import('https://esm.sh/@walletconnect/modal@2')
-                ]);
-
-                signClient = await SignClient.init({
-                    projectId: WC_PROJECT_ID,
-                    metadata: {
-                        name: 'XRS Names',
-                        description: 'Human-readable name service for Xeris blockchain',
-                        url: window.location.origin,
-                        icons: []
-                    }
-                });
-
-                wcModal = new WalletConnectModal({ projectId: WC_PROJECT_ID });
-
-                // Handle remote disconnect
-                signClient.on('session_delete', () => {
-                    wcSession = null;
-                    connectedAddress = null;
-                    updateWalletUI();
-                });
-
-                console.log('WalletConnect initialized');
-            } catch (err) {
-                console.error('Failed to init WalletConnect:', err);
-            }
-        }
-
-        async function connectWallet() {
-            const statusDiv = document.getElementById('registerStatus');
-            const connectBtn = document.getElementById('connectBtn');
-
-            if (!signClient) {
-                connectBtn.disabled = true;
-                connectBtn.textContent = 'Initializing...';
-                await initWalletConnect();
-                connectBtn.disabled = false;
-                connectBtn.textContent = 'Connect Wallet';
-                if (!signClient) {
-                    showStatus(statusDiv, 'Failed to initialize WalletConnect', 'error');
-                    return;
-                }
-            }
-
-            try {
-                connectBtn.disabled = true;
-                connectBtn.textContent = 'Connecting...';
-
-                const { uri, approval } = await signClient.connect({
-                    requiredNamespaces: {
-                        xeris: {
-                            methods: [],
-                            chains: ['xeris:testnet'],
-                            events: []
-                        }
-                    }
-                });
-
-                if (uri) {
-                    wcModal.openModal({ uri });
-                    wcSession = await approval();
-                    wcModal.closeModal();
-
-                    // Extract address — format: "xeris:testnet:ADDRESS"
-                    const accounts = wcSession.namespaces.xeris?.accounts || [];
-                    if (accounts.length > 0) {
-                        connectedAddress = accounts[0].split(':').pop();
-                        updateWalletUI();
-                    }
-                }
-            } catch (err) {
-                wcModal?.closeModal();
-                if (err.message && !err.message.includes('rejected')) {
-                    showStatus(statusDiv, 'Connection failed: ' + err.message, 'error');
-                }
-            } finally {
-                connectBtn.disabled = false;
-                connectBtn.textContent = 'Connect Wallet';
-            }
-        }
-
-        async function disconnectWallet() {
-            if (signClient && wcSession) {
-                try {
-                    await signClient.disconnect({
-                        topic: wcSession.topic,
-                        reason: { code: 6000, message: 'User disconnected' }
-                    });
-                } catch (e) { /* ignore */ }
-            }
-            wcSession = null;
-            connectedAddress = null;
-            updateWalletUI();
-        }
-
-        function updateWalletUI() {
-            const connectDiv = document.getElementById('walletConnect');
-            const connectedDiv = document.getElementById('walletConnected');
-            const addressSpan = document.getElementById('walletAddress');
-            const registerBtn = document.getElementById('registerBtn');
-
-            if (connectedAddress) {
-                connectDiv.style.display = 'none';
-                connectedDiv.style.display = 'flex';
-                const truncated = connectedAddress.slice(0, 6) + '...' + connectedAddress.slice(-4);
-                addressSpan.textContent = truncated;
-                addressSpan.title = connectedAddress;
-                registerBtn.style.display = 'block';
-            } else {
-                connectDiv.style.display = 'block';
-                connectedDiv.style.display = 'none';
-                registerBtn.style.display = 'none';
-            }
-        }
-
         // Tab switching
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1161,13 +957,9 @@
 
                 if (data.available) {
                     showStatus(statusDiv, `✅ ${data.name} is available!`, 'success');
-                    document.getElementById('walletArea').style.display = 'block';
-                    if (connectedAddress) {
-                        registerBtn.style.display = 'block';
-                    }
+                    registerBtn.style.display = 'block';
                 } else {
                     showStatus(statusDiv, `❌ ${data.name} is already taken`, 'error');
-                    document.getElementById('walletArea').style.display = 'none';
                     registerBtn.style.display = 'none';
                 }
             } catch (err) {
@@ -1175,21 +967,16 @@
             }
         }
 
-        // Re-hide wallet area when name changes (force re-check)
-        document.getElementById('name').addEventListener('input', function() {
-            document.getElementById('walletArea').style.display = 'none';
-            document.getElementById('registerBtn').style.display = 'none';
-        });
-
         // Register name
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const name = document.getElementById('name').value.trim().toLowerCase();
+            const address = document.getElementById('address').value.trim();
             const statusDiv = document.getElementById('registerStatus');
 
-            if (!name || !connectedAddress) {
-                showStatus(statusDiv, 'Please enter a name and connect your wallet', 'error');
+            if (!name || !address) {
+                showStatus(statusDiv, 'Please fill in all fields', 'error');
                 return;
             }
 
@@ -1197,7 +984,7 @@
                 const res = await fetch(`${API_URL}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, address: connectedAddress })
+                    body: JSON.stringify({ name, address })
                 });
 
                 const data = await res.json();
@@ -1206,7 +993,6 @@
                     showStatus(statusDiv, `🎉 Success! Registered ${data.name}`, 'success');
                     document.getElementById('registerForm').reset();
                     document.getElementById('registerBtn').style.display = 'none';
-                    document.getElementById('walletArea').style.display = 'none';
                     loadStats();
                 } else {
                     showStatus(statusDiv, data.error || 'Registration failed', 'error');
@@ -1414,9 +1200,6 @@
 
         // Load stats on page load
         loadStats();
-
-        // Start loading WalletConnect in background
-        initWalletConnect();
     </script>
 </body>
 </html>
