@@ -421,7 +421,7 @@ async function start() {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       await initDatabase();
-      app.listen(PORT, () => {
+      app.listen(PORT, '0.0.0.0', () => {
         console.log(`XRS Names service running on port ${PORT}`);
         console.log(`API docs: http://localhost:${PORT}/api/health`);
       });
