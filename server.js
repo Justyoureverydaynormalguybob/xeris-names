@@ -95,9 +95,8 @@ async function initDatabase() {
       CREATE INDEX IF NOT EXISTS idx_name ON names(name)
     `);
 
-    await pool.query(`
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_address ON names(address)
-    `);
+    await pool.query(`DROP INDEX IF EXISTS idx_address`);
+    await pool.query(`CREATE UNIQUE INDEX idx_address ON names(address)`);
 
     console.log('Database initialized');
   } catch (err) {
@@ -350,6 +349,20 @@ app.post('/api/register', registrationLimiter, async (req, res) => {
     if (!verifySignature(signMessage, signature, address)) {
       return res.status(401).json({ error: 'Invalid signature' });
     }
+  }
+
+  // Check if address already has a name
+  try {
+    const existing = await pool.query('SELECT name FROM names WHERE address = $1', [address]);
+    if (existing.rows.length > 0) {
+      return res.status(409).json({
+        error: 'This address already has a registered name',
+        existing_name: `${existing.rows[0].name}.xrs`
+      });
+    }
+  } catch (err) {
+    console.error('DB error checking address:', err.message);
+    return res.status(500).json({ error: 'Database error' });
   }
 
   const now = Date.now();
