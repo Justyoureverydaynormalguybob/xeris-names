@@ -6,7 +6,7 @@
     <title>XRS Names - Human-Readable Addresses for Xeris</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -38,6 +38,7 @@
             overflow-x: hidden;
         }
 
+        /* === BRICK WALL TEXTURE === */
         body::before {
             content: '';
             position: fixed;
@@ -45,12 +46,76 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: 
-                linear-gradient(rgba(143, 163, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(143, 163, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
+            background:
+                /* horizontal mortar lines */
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 48px,
+                    rgba(143, 163, 255, 0.04) 48px,
+                    rgba(143, 163, 255, 0.04) 50px
+                ),
+                /* vertical mortar lines - even rows */
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 98px,
+                    rgba(143, 163, 255, 0.03) 98px,
+                    rgba(143, 163, 255, 0.03) 100px
+                );
+            background-size: 100px 50px;
             pointer-events: none;
             z-index: 0;
+        }
+
+        /* === NOISE / GRAIN OVERLAY === */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 256px 256px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* === SPRAY PAINT SPLATTER DECORATIONS === */
+        .spray-blob-1,
+        .spray-blob-2,
+        .spray-blob-3 {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(60px);
+        }
+
+        .spray-blob-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: -80px;
+            background: radial-gradient(circle, rgba(0, 25, 165, 0.25) 0%, transparent 70%);
+        }
+
+        .spray-blob-2 {
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            right: -60px;
+            background: radial-gradient(circle, rgba(143, 163, 255, 0.15) 0%, transparent 70%);
+        }
+
+        .spray-blob-3 {
+            width: 200px;
+            height: 200px;
+            bottom: 10%;
+            left: 20%;
+            background: radial-gradient(circle, rgba(78, 91, 166, 0.2) 0%, transparent 70%);
         }
 
         .container {
@@ -60,56 +125,126 @@
             z-index: 1;
         }
 
+        /* === HEADER === */
         .header {
             text-align: center;
             color: var(--brand-light);
-            margin-bottom: 48px;
+            margin-bottom: 32px;
             padding-top: 40px;
         }
 
         .header h1 {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 3em;
-            font-weight: 800;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 3.5em;
             margin-bottom: 12px;
-            background: linear-gradient(135deg, #ffffff 0%, var(--brand-vibrant) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-            text-shadow: 0 0 40px rgba(143, 163, 255, 0.3);
+            color: #fff;
+            text-shadow:
+                0 0 10px rgba(143, 163, 255, 0.6),
+                0 0 30px rgba(143, 163, 255, 0.4),
+                0 0 60px rgba(0, 25, 165, 0.3),
+                3px 3px 0px rgba(0, 25, 165, 0.8);
+            letter-spacing: 0.02em;
         }
 
         .header p {
-            font-size: 1.1em;
+            font-size: 0.9em;
             color: var(--text-body);
-            font-weight: 300;
-            letter-spacing: 0.01em;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
         }
 
+        /* === HERO BANNER === */
+        .hero-banner {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            border-radius: 0;
+            border: 2px solid rgba(143, 163, 255, 0.15);
+        }
+
+        .hero-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(1, 4, 20, 0.6);
+        }
+
+        .hero-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            width: 90%;
+        }
+
+        .hero-text span {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.6em;
+            color: #fff;
+            text-shadow:
+                0 0 15px rgba(143, 163, 255, 0.7),
+                0 0 40px rgba(0, 25, 165, 0.5);
+            letter-spacing: 0.05em;
+            display: inline-block;
+            border-bottom: 3px solid var(--brand-vibrant);
+            padding-bottom: 4px;
+        }
+
+        /* === CARDS === */
         .card {
-            background: rgba(10, 18, 61, 0.6);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(143, 163, 255, 0.1);
-            border-radius: 2px;
+            background: rgba(5, 11, 43, 0.85);
+            border: none;
+            border-radius: 0;
             padding: 32px;
-            box-shadow: 
-                0 0 0 1px rgba(143, 163, 255, 0.05),
-                0 20px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
+            position: relative;
+            transform: rotate(-0.3deg);
         }
 
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-blue), var(--brand-vibrant), var(--brand-muted));
+        }
+
+        .card:nth-child(even) {
+            transform: rotate(0.2deg);
+        }
+
+        .card:nth-child(3) {
+            transform: rotate(0.15deg);
+        }
+
+        /* === INPUTS === */
         .input-group {
             margin-bottom: 24px;
         }
 
         label {
             display: block;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 600;
-            font-size: 0.85em;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 0.95em;
+            letter-spacing: 0.05em;
             margin-bottom: 10px;
             color: var(--brand-vibrant);
         }
@@ -117,14 +252,14 @@
         input {
             width: 100%;
             padding: 14px 16px;
-            background: rgba(5, 11, 43, 0.5);
-            border: 1px solid rgba(143, 163, 255, 0.2);
-            border-radius: 2px;
+            background: rgba(1, 4, 20, 0.7);
+            border: 2px solid rgba(143, 163, 255, 0.2);
+            border-radius: 0;
             font-size: 16px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Space Mono', monospace;
             color: var(--brand-light);
             transition: all 0.3s ease;
-            font-weight: 300;
+            font-weight: 400;
         }
 
         input::placeholder {
@@ -134,8 +269,10 @@
         input:focus {
             outline: none;
             border-color: var(--brand-vibrant);
-            background: rgba(5, 11, 43, 0.8);
-            box-shadow: 0 0 0 3px rgba(143, 163, 255, 0.1);
+            background: rgba(1, 4, 20, 0.9);
+            box-shadow:
+                0 0 0 3px rgba(143, 163, 255, 0.1),
+                0 0 15px rgba(143, 163, 255, 0.15);
         }
 
         .input-with-suffix {
@@ -152,55 +289,41 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--brand-vibrant);
-            font-weight: 600;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-family: 'Permanent Marker', cursive;
             pointer-events: none;
         }
 
+        /* === BUTTONS === */
         .btn {
             width: 100%;
             padding: 16px;
             background: var(--brand-blue);
             color: white;
-            border: 1px solid rgba(143, 163, 255, 0.2);
-            border-radius: 2px;
+            border: 2px solid rgba(143, 163, 255, 0.3);
+            border-radius: 0;
             font-size: 14px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(143, 163, 255, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
         }
 
         .btn:hover {
             background: var(--brand-deep);
             border-color: var(--brand-vibrant);
-            box-shadow: 
-                0 0 20px rgba(143, 163, 255, 0.3),
-                0 0 40px rgba(0, 25, 165, 0.2);
-            transform: translateY(-1px);
+            box-shadow:
+                0 0 10px rgba(143, 163, 255, 0.4),
+                0 0 25px rgba(143, 163, 255, 0.2),
+                0 0 50px rgba(0, 25, 165, 0.15);
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: translateY(2px);
         }
 
         .btn:disabled {
@@ -224,34 +347,36 @@
             background: rgba(78, 91, 166, 0.5);
         }
 
+        /* === STATUS MESSAGES === */
         .status {
             margin-top: 16px;
             padding: 14px 16px;
-            border-radius: 2px;
+            border-radius: 0;
             font-size: 14px;
             font-family: 'Inter', sans-serif;
-            font-weight: 300;
-            border: 1px solid;
+            font-weight: 400;
+            border: 2px solid;
         }
 
         .status.success {
             background: rgba(34, 197, 94, 0.1);
             color: #4ade80;
-            border-color: rgba(34, 197, 94, 0.3);
+            border-color: rgba(34, 197, 94, 0.4);
         }
 
         .status.error {
             background: rgba(239, 68, 68, 0.1);
             color: #f87171;
-            border-color: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.4);
         }
 
         .status.info {
             background: rgba(143, 163, 255, 0.1);
             color: var(--brand-vibrant);
-            border-color: rgba(143, 163, 255, 0.3);
+            border-color: rgba(143, 163, 255, 0.4);
         }
 
+        /* === STAT BOXES === */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -262,31 +387,40 @@
         .stat-box {
             text-align: center;
             padding: 24px;
-            background: rgba(0, 11, 79, 0.4);
-            border: 1px solid rgba(143, 163, 255, 0.15);
-            border-radius: 2px;
+            background: rgba(0, 11, 79, 0.5);
+            border: 2px solid rgba(143, 163, 255, 0.15);
+            border-radius: 0;
             position: relative;
             overflow: hidden;
         }
 
+        .stat-box:first-child {
+            transform: rotate(-1deg);
+        }
+
+        .stat-box:last-child {
+            transform: rotate(0.8deg);
+        }
+
+        /* tape-like highlight strip on top */
         .stat-box::before {
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--brand-vibrant), transparent);
+            left: 10%;
+            right: 10%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--brand-vibrant), var(--brand-blue));
+            opacity: 0.8;
         }
 
         .stat-number {
-            font-size: 2.5em;
-            font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #ffffff 0%, var(--brand-vibrant) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 2.8em;
+            font-family: 'Permanent Marker', cursive;
+            color: #fff;
+            text-shadow:
+                0 0 10px rgba(143, 163, 255, 0.5),
+                2px 2px 0px rgba(0, 25, 165, 0.6);
         }
 
         .stat-label {
@@ -294,10 +428,11 @@
             font-size: 0.85em;
             margin-top: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 500;
+            letter-spacing: 0.15em;
+            font-weight: 600;
         }
 
+        /* === SCROLLABLE LISTS === */
         .recent-names {
             max-height: 350px;
             overflow-y: auto;
@@ -315,22 +450,24 @@
 
         .recent-names::-webkit-scrollbar-thumb {
             background: var(--brand-vibrant);
-            border-radius: 2px;
+            border-radius: 0;
         }
 
+        /* === NAME ITEMS (directory/recent) === */
         .name-item {
             padding: 16px;
-            border-bottom: 1px solid rgba(143, 163, 255, 0.1);
+            padding-left: 20px;
+            border-bottom: 1px solid rgba(143, 163, 255, 0.08);
+            border-left: 4px solid var(--brand-vibrant);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .name-item:hover {
             background: rgba(143, 163, 255, 0.05);
-            border-left: 2px solid var(--brand-vibrant);
-            padding-left: 14px;
+            border-left-color: #fff;
         }
 
         .name-item:last-child {
@@ -338,45 +475,49 @@
         }
 
         .name-text {
-            font-weight: 600;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Permanent Marker', cursive;
             color: var(--brand-vibrant);
-            font-size: 1.05em;
+            font-size: 1.1em;
+            letter-spacing: 0.02em;
         }
 
         .address-text {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 0.85em;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8em;
             color: var(--text-body);
             margin-top: 4px;
         }
 
+        /* === COPY BUTTON (stencil stamp) === */
         .copy-btn {
-            background: rgba(143, 163, 255, 0.15);
-            border: 1px solid rgba(143, 163, 255, 0.25);
-            border-radius: 2px;
+            background: transparent;
+            border: 2px dashed rgba(143, 163, 255, 0.35);
+            border-radius: 0;
             color: var(--brand-vibrant);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.75em;
-            font-weight: 600;
-            padding: 6px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 6px 14px;
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap;
-            letter-spacing: 0.05em;
         }
 
         .copy-btn:hover {
-            background: rgba(143, 163, 255, 0.3);
+            background: rgba(143, 163, 255, 0.15);
             border-color: var(--brand-vibrant);
+            box-shadow: 0 0 10px rgba(143, 163, 255, 0.2);
         }
 
         .copy-btn.copied {
-            background: rgba(34, 197, 94, 0.2);
-            border-color: rgba(34, 197, 94, 0.4);
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.5);
             color: #4ade80;
         }
 
+        /* === FEATURES === */
         .features {
             display: grid;
             gap: 20px;
@@ -387,30 +528,45 @@
             display: flex;
             align-items: start;
             gap: 16px;
-            padding: 16px;
+            padding: 18px;
             background: rgba(0, 11, 79, 0.3);
-            border: 1px solid rgba(143, 163, 255, 0.1);
-            border-radius: 2px;
-            transition: all 0.3s ease;
+            border: 2px solid rgba(143, 163, 255, 0.08);
+            border-left: 4px solid var(--brand-vibrant);
+            border-radius: 0;
+            transition: all 0.2s ease;
         }
 
         .feature:hover {
-            border-color: var(--brand-vibrant);
+            border-color: rgba(143, 163, 255, 0.2);
+            border-left-color: #fff;
             background: rgba(143, 163, 255, 0.05);
         }
 
         .feature-icon {
-            font-size: 28px;
             flex-shrink: 0;
-            filter: grayscale(1) brightness(1.5);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--brand-vibrant);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         .feature-text h3 {
-            font-size: 1.1em;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 600;
+            font-size: 1.05em;
+            font-family: 'Permanent Marker', cursive;
             margin-bottom: 6px;
             color: var(--brand-light);
+            letter-spacing: 0.02em;
         }
 
         .feature-text p {
@@ -419,38 +575,44 @@
             line-height: 1.5;
         }
 
+        /* === TABS === */
         .tabs {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             margin-bottom: 24px;
         }
 
         .tab {
             flex: 1;
-            padding: 14px;
-            background: rgba(5, 11, 43, 0.5);
-            border: 1px solid rgba(143, 163, 255, 0.1);
-            border-radius: 2px;
+            padding: 14px 8px;
+            background: rgba(5, 11, 43, 0.6);
+            border: 2px solid rgba(143, 163, 255, 0.1);
+            border-left: 4px solid var(--brand-muted);
+            border-radius: 0;
             cursor: pointer;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: 600;
-            font-size: 0.85em;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.8em;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
             color: var(--text-body);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .tab:hover {
-            border-color: var(--brand-vibrant);
+            border-left-color: var(--brand-vibrant);
             background: rgba(143, 163, 255, 0.05);
+            transform: rotate(-0.5deg);
         }
 
         .tab.active {
             background: var(--brand-blue);
             color: white;
             border-color: var(--brand-vibrant);
-            box-shadow: 0 0 20px rgba(143, 163, 255, 0.2);
+            border-left: 4px solid #fff;
+            box-shadow:
+                0 0 15px rgba(143, 163, 255, 0.3),
+                0 0 30px rgba(0, 25, 165, 0.2);
         }
 
         .tab-content {
@@ -461,13 +623,28 @@
             display: block;
         }
 
+        /* === PROTOCOL FEATURES HEADING === */
+        .features-heading {
+            margin-bottom: 20px;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.4em;
+            color: var(--brand-light);
+            text-shadow: 2px 2px 0px rgba(0, 25, 165, 0.5);
+        }
+
+        /* === MOBILE === */
         @media (max-width: 600px) {
             .header h1 {
-                font-size: 2.2em;
+                font-size: 2.4em;
             }
 
             .card {
-                padding: 24px;
+                padding: 20px;
+                transform: none !important;
+            }
+
+            .stat-box {
+                transform: none !important;
             }
 
             .stats {
@@ -481,9 +658,17 @@
             .tab {
                 width: 100%;
             }
+
+            .hero-banner {
+                height: 150px;
+            }
+
+            .hero-text span {
+                font-size: 1.2em;
+            }
         }
 
-        /* Custom scrollbar for WebKit browsers */
+        /* === SCROLLBAR === */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -494,14 +679,14 @@
 
         ::-webkit-scrollbar-thumb {
             background: var(--brand-vibrant);
-            border-radius: 2px;
+            border-radius: 0;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--brand-blue);
         }
 
-        /* Selection color */
+        /* === SELECTION === */
         ::selection {
             background: var(--brand-vibrant);
             color: var(--brand-navy);
@@ -514,10 +699,23 @@
     </style>
 </head>
 <body>
+    <!-- Spray paint decoration blobs -->
+    <div class="spray-blob-1"></div>
+    <div class="spray-blob-2"></div>
+    <div class="spray-blob-3"></div>
+
     <div class="container">
         <div class="header">
             <h1>XRS Names</h1>
             <p>Human-readable addresses for the Xeris blockchain</p>
+        </div>
+
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+            <img src="https://images.unsplash.com/photo-1569974507005-6dc61f97fb5c?w=1200&q=80" alt="Graffiti wall">
+            <div class="hero-text">
+                <span>Claim Your Name on the Wall</span>
+            </div>
         </div>
 
         <div class="card">
@@ -547,10 +745,10 @@
                     <div class="input-group">
                         <label for="name">Choose Your Name</label>
                         <div class="input-with-suffix">
-                            <input 
-                                type="text" 
-                                id="name" 
-                                placeholder="alice" 
+                            <input
+                                type="text"
+                                id="name"
+                                placeholder="alice"
                                 required
                                 pattern="[a-z0-9][a-z0-9-]{1,30}[a-z0-9]"
                                 title="3-32 characters, lowercase letters, numbers, hyphens"
@@ -561,10 +759,10 @@
 
                     <div class="input-group">
                         <label for="address">Your Xeris Address</label>
-                        <input 
-                            type="text" 
-                            id="address" 
-                            placeholder="Xrs7d1e4f..." 
+                        <input
+                            type="text"
+                            id="address"
+                            placeholder="Xrs7d1e4f..."
                             required
                         >
                     </div>
@@ -580,9 +778,9 @@
             <div class="tab-content" id="lookup-tab">
                 <div class="input-group">
                     <label for="lookupName">Name or Address</label>
-                    <input 
-                        type="text" 
-                        id="lookupName" 
+                    <input
+                        type="text"
+                        id="lookupName"
                         placeholder="alice.xrs or Xrs7d1e4f..."
                     >
                 </div>
@@ -618,31 +816,63 @@
         </div>
 
         <div class="card">
-            <h2 style="margin-bottom: 20px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; color: var(--brand-light);">Protocol Features</h2>
+            <h2 class="features-heading">Protocol Features</h2>
             <div class="features">
                 <div class="feature">
-                    <div class="feature-icon">→</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 32 32">
+                            <path d="M8 24 L8 12 Q8 8 12 8 L14 8 Q16 8 16 10 L16 14 L20 8 M16 14 L16 24 M20 14 L22 10 Q23 8 24 10 L26 18 Q27 20 26 22 L24 26 Q23 28 21 26 L20 22" />
+                            <circle cx="24" cy="6" r="2" />
+                        </svg>
+                    </div>
                     <div class="feature-text">
                         <h3>Engineering Simplicity</h3>
                         <p>Replace 44-character addresses with human-readable names</p>
                     </div>
                 </div>
                 <div class="feature">
-                    <div class="feature-icon">⊕</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 32 32">
+                            <circle cx="16" cy="16" r="10" />
+                            <line x1="16" y1="6" x2="16" y2="2" />
+                            <line x1="16" y1="30" x2="16" y2="26" />
+                            <line x1="6" y1="16" x2="2" y2="16" />
+                            <line x1="30" y1="16" x2="26" y2="16" />
+                            <path d="M10 12 Q16 8 22 12 Q16 16 10 12 Z" />
+                            <path d="M10 20 Q16 16 22 20 Q16 24 10 20 Z" />
+                        </svg>
+                    </div>
                     <div class="feature-text">
                         <h3>Universal Integration</h3>
                         <p>Compatible across all Xeris wallets, dApps, and explorers</p>
                     </div>
                 </div>
                 <div class="feature">
-                    <div class="feature-icon">∞</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 32 32">
+                            <path d="M16 6 L16 4 M12 8 L8 6 M20 8 L24 6" />
+                            <path d="M10 14 L10 22 Q10 26 16 28 Q22 26 22 22 L22 14" />
+                            <path d="M10 14 Q16 10 22 14" />
+                            <line x1="16" y1="18" x2="16" y2="24" />
+                            <line x1="13" y1="21" x2="19" y2="21" />
+                        </svg>
+                    </div>
                     <div class="feature-text">
                         <h3>Public Infrastructure</h3>
                         <p>Free naming service built as a community public good</p>
                     </div>
                 </div>
                 <div class="feature">
-                    <div class="feature-icon">◆</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 32 32">
+                            <circle cx="12" cy="14" r="6" />
+                            <path d="M12 20 L12 28 L8 24" />
+                            <path d="M18 10 L26 10 L26 18 L22 18" />
+                            <rect x="20" y="4" width="8" height="8" rx="1" />
+                            <line x1="24" y1="6" x2="24" y2="10" />
+                            <line x1="22" y1="8" x2="26" y2="8" />
+                        </svg>
+                    </div>
                     <div class="feature-text">
                         <h3>Owner Control</h3>
                         <p>Full ownership with update capabilities at any time</p>
@@ -659,7 +889,7 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
+
             event.target.classList.add('active');
             document.getElementById(tab + '-tab').classList.add('active');
 
@@ -676,7 +906,7 @@
             try {
                 const res = await fetch(`${API_URL}/stats`);
                 const data = await res.json();
-                
+
                 document.getElementById('totalNames').textContent = data.total_names.toLocaleString();
                 document.getElementById('uniqueOwners').textContent = data.unique_owners.toLocaleString();
             } catch (err) {
@@ -714,7 +944,7 @@
         // Register name
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const name = document.getElementById('name').value.trim().toLowerCase();
             const address = document.getElementById('address').value.trim();
             const statusDiv = document.getElementById('registerStatus');
@@ -808,7 +1038,7 @@
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; margin-left: 12px;">
                             <button class="copy-btn" onclick="copyAddress('${escapeHtml(item.address)}', this)">COPY</button>
-                            <span style="font-size: 0.75em; color: var(--text-dim); font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <span style="font-size: 0.75em; color: var(--text-dim); font-family: 'Space Mono', monospace;">
                                 ${escapeHtml(new Date(item.registered).toLocaleDateString())}
                             </span>
                         </div>
@@ -880,7 +1110,7 @@
                     if (page > 1) {
                         paginationHtml += `<button class="btn btn-secondary" style="width: auto; padding: 10px 20px; margin: 0;" onclick="loadDirectory(${page - 1})">Prev</button>`;
                     }
-                    paginationHtml += `<span style="display: flex; align-items: center; color: var(--text-body); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.85em;">${page} / ${data.pages} (${data.total} names)</span>`;
+                    paginationHtml += `<span style="display: flex; align-items: center; color: var(--text-body); font-family: 'Space Mono', monospace; font-size: 0.85em;">${page} / ${data.pages} (${data.total} names)</span>`;
                     if (page < data.pages) {
                         paginationHtml += `<button class="btn btn-secondary" style="width: auto; padding: 10px 20px; margin: 0;" onclick="loadDirectory(${page + 1})">Next</button>`;
                     }
@@ -910,7 +1140,7 @@
                     </div>
                     <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; margin-left: 12px;">
                         <button class="copy-btn" onclick="copyAddress('${escapeHtml(item.address)}', this)">COPY</button>
-                        <span style="font-size: 0.75em; color: var(--text-dim); font-family: 'Plus Jakarta Sans', sans-serif;">
+                        <span style="font-size: 0.75em; color: var(--text-dim); font-family: 'Space Mono', monospace;">
                             ${escapeHtml(new Date(item.registered).toLocaleDateString())}
                         </span>
                     </div>
