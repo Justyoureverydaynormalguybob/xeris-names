@@ -4,6 +4,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const nacl = require('tweetnacl');
+const bs58 = require('bs58');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -137,6 +139,20 @@ function sanitizeMetadata(metadata) {
   return Object.keys(sanitized).length > 0 ? sanitized : null;
 }
 
+// Ed25519 signature verification
+function verifySignature(message, signature, address) {
+  try {
+    const publicKeyBytes = bs58.decode(address);
+    if (publicKeyBytes.length !== 32) return false;
+    const signatureBytes = bs58.decode(signature);
+    if (signatureBytes.length !== 64) return false;
+    const messageBytes = new TextEncoder().encode(message);
+    return nacl.sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes);
+  } catch {
+    return false;
+  }
+}
+
 // API Routes
 
 // API documentation
@@ -169,11 +185,13 @@ app.get('/api', (req, res) => {
       'POST /api/register': {
         description: 'Register a new .xrs name',
         body: '{ name, address, signature?, metadata? }',
+        signature_format: 'sign("xrs-names:register:<name>:<address>") — optional, base58-encoded Ed25519',
         response: '{ success, name, address, registered }'
       },
       'PUT /api/update/:name': {
-        description: 'Update the address for a registered name (requires signature)',
+        description: 'Update the address for a registered name (requires signature from current owner)',
         body: '{ address, signature }',
+        signature_format: 'sign("xrs-names:update:<name>:<new_address>") — required, base58-encoded Ed25519',
         response: '{ success, name, address, updated }'
       },
       'GET /api/search?q=:query': {
@@ -195,6 +213,12 @@ app.get('/api', (req, res) => {
         description: 'Registry statistics',
         response: '{ total_names, unique_owners, service, version }'
       }
+    },
+    signing: {
+      algorithm: 'Ed25519 detached signature (base58-encoded)',
+      register: 'sign("xrs-names:register:<name>:<address>") — optional for web UI, recommended for wallets',
+      update: 'sign("xrs-names:update:<name>:<new_address>") — required, must be signed by current owner',
+      notes: 'Addresses are base58-encoded Ed25519 public keys (32 bytes). Signatures are base58-encoded Ed25519 detached signatures (64 bytes).'
     },
     rate_limits: {
       general: '100 requests per 15 minutes',
@@ -319,6 +343,14 @@ app.post('/api/register', registrationLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Invalid address format' });
   }
 
+  // Verify signature if provided (optional for backward compat with web UI)
+  if (signature) {
+    const message = `xrs-names:register:${cleanName}:${address}`;
+    if (!verifySignature(message, signature, address)) {
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+  }
+
   const now = Date.now();
   const sanitizedMeta = sanitizeMetadata(metadata);
   const metadataStr = sanitizedMeta ? JSON.stringify(sanitizedMeta) : null;
@@ -368,14 +400,22 @@ app.put('/api/update/:name', async (req, res) => {
   const now = Date.now();
 
   try {
-    const result = await pool.query(
-      'UPDATE names SET address = $1, updated_at = $2 WHERE name = $3',
-      [address, now, name]
-    );
-
-    if (result.rowCount === 0) {
+    // Look up current owner
+    const existing = await pool.query('SELECT address FROM names WHERE name = $1', [name]);
+    if (existing.rows.length === 0) {
       return res.status(404).json({ error: 'Name not found' });
     }
+
+    const currentOwner = existing.rows[0].address;
+    const message = `xrs-names:update:${name}:${address}`;
+    if (!verifySignature(message, signature, currentOwner)) {
+      return res.status(401).json({ error: 'Invalid signature — must be signed by current owner' });
+    }
+
+    const result = await pool.query(
+      'UPDATE names SET address = $1, owner_signature = $2, updated_at = $3 WHERE name = $4',
+      [address, signature, now, name]
+    );
 
     res.json({
       success: true,
