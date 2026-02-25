@@ -9,6 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // PostgreSQL connection
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL environment variable is not set');
+  process.exit(1);
+}
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
@@ -411,13 +415,25 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
+// Start server with retry for database connection
 async function start() {
-  await initDatabase();
-  app.listen(PORT, () => {
-    console.log(`XRS Names service running on port ${PORT}`);
-    console.log(`API docs: http://localhost:${PORT}/api/health`);
-  });
+  const maxRetries = 5;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await initDatabase();
+      app.listen(PORT, () => {
+        console.log(`XRS Names service running on port ${PORT}`);
+        console.log(`API docs: http://localhost:${PORT}/api/health`);
+      });
+      return;
+    } catch (err) {
+      console.error(`Database connection attempt ${attempt}/${maxRetries} failed:`, err.message);
+      if (attempt === maxRetries) throw err;
+      const delay = attempt * 2000;
+      console.log(`Retrying in ${delay / 1000}s...`);
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
 }
 
 start().catch(err => {
