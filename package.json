@@ -1,0 +1,26 @@
+{
+  "name": "xrs-names",
+  "version": "1.1.0",
+  "description": "Human-readable .xrs names for Xeris blockchain - Public Good Service",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["xeris", "blockchain", "names", "dns", "xrs"],
+  "author": "Xeris Community",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "sqlite3": "^5.1.7",
+    "cors": "^2.8.6",
+    "helmet": "^8.1.0",
+    "express-rate-limit": "^7.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
