@@ -1,4 +1,8 @@
+[build]
+buildCommand = "npm install --omit=dev"
+
 [deploy]
+startCommand = "node server.js"
 healthcheckPath = "/healthz"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
