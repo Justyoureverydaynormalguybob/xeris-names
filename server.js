@@ -139,6 +139,71 @@ function sanitizeMetadata(metadata) {
 
 // API Routes
 
+// API documentation
+app.get('/api', (req, res) => {
+  res.json({
+    service: 'XRS Names',
+    version: '1.1.0',
+    description: 'Human-readable name resolution for the Xeris blockchain',
+    base_url: `${req.protocol}://${req.get('host')}/api`,
+    endpoints: {
+      'GET /api/health': {
+        description: 'Service health check',
+        response: '{ status, service, version }'
+      },
+      'GET /api/check/:name': {
+        description: 'Check if a name is available',
+        example: '/api/check/alice',
+        response: '{ name, available }'
+      },
+      'GET /api/resolve/:name': {
+        description: 'Resolve a .xrs name to a wallet address',
+        example: '/api/resolve/alice',
+        response: '{ name, address, registered, metadata }'
+      },
+      'GET /api/reverse/:address': {
+        description: 'Reverse lookup — find names registered to an address',
+        example: '/api/reverse/8BzQbGLHZhXp...',
+        response: '{ address, names[], primary }'
+      },
+      'POST /api/register': {
+        description: 'Register a new .xrs name',
+        body: '{ name, address, signature?, metadata? }',
+        response: '{ success, name, address, registered }'
+      },
+      'PUT /api/update/:name': {
+        description: 'Update the address for a registered name (requires signature)',
+        body: '{ address, signature }',
+        response: '{ success, name, address, updated }'
+      },
+      'GET /api/search?q=:query': {
+        description: 'Search names by prefix',
+        example: '/api/search?q=ali&limit=20',
+        response: '{ query, results[] }'
+      },
+      'GET /api/recent': {
+        description: 'List recently registered names',
+        example: '/api/recent?limit=10',
+        response: '{ recent[] }'
+      },
+      'GET /api/directory': {
+        description: 'Paginated directory of all registered names',
+        example: '/api/directory?page=1&limit=50',
+        response: '{ entries[], total, page, pages }'
+      },
+      'GET /api/stats': {
+        description: 'Registry statistics',
+        response: '{ total_names, unique_owners, service, version }'
+      }
+    },
+    rate_limits: {
+      general: '100 requests per 15 minutes',
+      registration: '10 requests per hour'
+    },
+    explorer: 'https://explorer.xerisweb.com/account/{address}'
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
