@@ -8,6 +8,12 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Health check - before ALL middleware so Railway can always reach it
+app.get('/healthz', (req, res) => {
+  console.log('Health check hit');
+  res.status(200).send('ok');
+});
+
 // PostgreSQL connection
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL environment variable is not set');
@@ -93,7 +99,7 @@ async function initDatabase() {
     console.log('Database initialized');
   } catch (err) {
     console.error('Database initialization error:', err);
-    process.exit(1);
+    throw err;
   }
 }
 
